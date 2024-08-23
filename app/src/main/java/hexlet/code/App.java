@@ -12,7 +12,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import hexlet.code.repository.BaseRepository;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -44,6 +43,7 @@ public class App {
     }
     public static void main(String[] args) throws IOException, SQLException {
         Javalin app = getApp();
+        app.get("/", ctx -> ctx.result("Hello World!"));
         app.start(7070);
     }
 }
