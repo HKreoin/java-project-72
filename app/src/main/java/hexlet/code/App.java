@@ -20,7 +20,7 @@ public class App {
     public static Javalin getApp() throws IOException, SQLException {
 
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl("jdbc:h2:mem:hexlet;DB_CLOSE_DELAY=-1;");
+        hikariConfig.setJdbcUrl(getDBUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
         var url = App.class.getClassLoader().getResourceAsStream("schema.sql");
@@ -39,11 +39,22 @@ public class App {
             config.fileRenderer(new JavalinJte());
         });
 
+        app.get("/", ctx -> ctx.result("Hello World"));
+
         return app;
     }
     public static void main(String[] args) throws IOException, SQLException {
         Javalin app = getApp();
-        app.get("/", ctx -> ctx.result("Hello World!"));
-        app.start(7070);
+        
+        app.start(getPort());
+    }
+
+    private static int getPort() {
+        String port = System.getenv().getOrDefault("PORT", "7070");
+        return Integer.valueOf(port);
+    }
+
+    private static String getDBUrl() {
+        return System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1;");
     }
 }
