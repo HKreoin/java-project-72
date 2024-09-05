@@ -45,6 +45,7 @@ public class App {
         });
 
         app.get(NamedRoutes.index(), UrlsController::index);
+        app.post(NamedRoutes.index(), UrlsController::create);
 
         return app;
     }
