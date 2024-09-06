@@ -5,6 +5,7 @@ plugins {
     id("java")
     application
     checkstyle
+    jacoco
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.freefair.lombok") version "8.7.1"
 }
@@ -45,3 +46,33 @@ tasks.test {
     }
 }
 
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+        dependsOn(tasks.test) // tests are required to run before generating the report
+    }
+}
+
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.5".toBigDecimal()
+            }
+        }
+
+        rule {
+            isEnabled = false
+            element = "CLASS"
+            includes = listOf("org.gradle.*")
+
+            limit {
+                counter = "LINE"
+                value = "TOTALCOUNT"
+                maximum = "0.3".toBigDecimal()
+            }
+        }
+    }
+}
