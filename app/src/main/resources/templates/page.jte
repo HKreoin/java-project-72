@@ -1,6 +1,9 @@
 @import gg.jte.Content
+@import hexlet.code.dto.BasePage
+
 @param Content content
 @param Content navActive
+@param BasePage page = null
 
 <!doctype html>
 <html lang="en">
@@ -29,9 +32,17 @@
       </div>
     </header>
 
-    <div class="content">
-      ${content}
-    </div>
+        <main class="flex-grow-1">
+            @if(page != null && page.getFlashMessage() != null)
+                <div class="rounded-0 m-0 alert alert-dismissible fade show alert-${page.getFlashType()}" role="alert">
+                    <p class="m-0">${page.getFlashMessage()}</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            <section>
+                ${content}
+            </section>
+        </main>
 
     <div class="container">
       <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">

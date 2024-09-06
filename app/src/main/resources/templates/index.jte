@@ -1,15 +1,17 @@
 @import hexlet.code.util.NamedRoutes
+@import hexlet.code.dto.BasePage
+@param BasePage page
 
 @template.page(
+page = page,
 navActive = @`
           <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-            <li><a href="${NamedRoutes.index()}" class="nav-link px-2 text-secondary">Главная</a></li>
+            <li><a href="${NamedRoutes.rootPath()}" class="nav-link px-2 text-secondary">Главная</a></li>
             <li><a href="${NamedRoutes.urlsPath()}" class="nav-link px-2 text-white">Сайты</a></li>
           </ul>
 `,
 
 content=@`
-    <section>
       <div class="container-fluid bg-dark p-5">
         <div class="row">
           <div class="col-md-10 col-lg-8 mx-auto text-white">
@@ -32,6 +34,5 @@ content=@`
           </div>
         </div>
       </div>
-    </section>
 `
 )
