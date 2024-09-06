@@ -2,6 +2,9 @@ package hexlet.code;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import hexlet.code.repository.UrlRepository;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -25,7 +28,33 @@ public class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get("/");
             assertThat(response.code()).isEqualTo(200);
-            //assertThat(response.body().string()).contains("Hello World");
+        });
+    }
+
+    @Test
+    public void testUrlsPage() {
+        JavalinTest.test(app, (server, client) -> {
+            var response = client.get("/urls");
+            assertThat(response.code()).isEqualTo(200);
+        });
+    }
+
+    @Test
+    public void testCreateUrl() {
+        JavalinTest.test(app, (server, client) -> {
+            var requestBody = "url=https://www.hexlet.io";
+            var response = client.post("/urls", requestBody);
+            assertThat(response.code()).isEqualTo(200);
+            assertThat(response.body().string()).contains("https://www.hexlet.io");
+            assertThat(UrlRepository.existByName("https://www.hexlet.io"));
+        });
+    }
+
+    @Test
+    public void testUrlNotFound() {
+        JavalinTest.test(app, (server, client) -> {
+            var response = client.get("/urls/1234567890");
+            assertThat(response.code()).isEqualTo(404);
         });
     }
 }
