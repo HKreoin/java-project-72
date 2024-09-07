@@ -18,6 +18,8 @@
                 <tr>
                   <th class="col-1">ID</th>
                   <th>Имя</th>
+                  <th class="col-2">Последняя проверка</th>
+                  <th class="col-1">Код ответа</th>
                 </tr>
               </thead>
               <tbody>
@@ -33,6 +35,16 @@
                         <a href="${NamedRoutes.urlPath(url.getId())}">
                           ${url.getName()}
                         </a>
+                      </td>
+                      <td>
+                        @if(page.getUrlChecksMap().containsKey(url.getId()))
+                          ${page.getUrlChecksMap().get(url.getId()).getCreatedAtString()}
+                        @endif
+                      </td>
+                      <td>
+                        @if(page.getUrlChecksMap().containsKey(url.getId()))
+                          ${page.getUrlChecksMap().get(url.getId()).getStatusCode()}
+                        @endif
                       </td>
                     </tr>
                   @endfor
