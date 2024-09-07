@@ -29,6 +29,36 @@ content = @`
       </tr>
     </tbody>
   </table>
+
+  <h2 class="mt-5">Проверки</h2>
+  <form action="${NamedRoutes.urlCheck(page.getUrl().getId())}" method="post">
+    <input type="submit" class="btn btn-primary" value="Запустить проверку"/>
+  </form>
+
+  <table class="table table-bordered table-hover mt-3">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Код ответа</th>
+        <th scope="col">title</th>
+        <th scope="col">h1</th>
+        <th scope="col">description</th>
+        <th scope="col">Дата проверки</th>
+      </tr>
+    </thead>
+    @if(page.getChecks() != null)
+      @for(var urlCheck : page.getChecks())
+      <tr>
+        <td>${urlCheck.getId()}</td>
+        <td>${urlCheck.getStatusCode()}</td>
+        <td>${urlCheck.getTitle()}</td>
+        <td>${urlCheck.getH1()}</td>
+        <td>${urlCheck.getDescription()}</td>
+        <td>${urlCheck.getCreatedAtString()}</td>
+      </tr>
+      @endfor
+    @endif
+  </table>
 </div>
 `
 )
