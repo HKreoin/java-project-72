@@ -9,6 +9,9 @@ lint:
 test:
 	make -C ./app test
 
+start:
+	make -C ./app start
+
 build:
 	make -C ./app build
 
