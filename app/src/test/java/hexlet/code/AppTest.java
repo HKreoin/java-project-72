@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import hexlet.code.model.Url;
-import hexlet.code.model.UrlCheck;
 import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
@@ -20,7 +19,6 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
 
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
@@ -31,6 +29,7 @@ public class AppTest {
 
     private static Javalin app;
     private static MockWebServer mockWebServer;
+    private static String testUrl;
 
     private static final String TEST_PAGE = "TestPage.html";
 
@@ -47,11 +46,12 @@ public class AppTest {
     @BeforeAll
     static void generalSetUp() throws Exception {
         mockWebServer = new MockWebServer();
+        mockWebServer.start();
         MockResponse mockResponse = new MockResponse()
                 .setBody(readFixture(TEST_PAGE))
                 .setResponseCode(200);
         mockWebServer.enqueue(mockResponse);
-        mockWebServer.start();
+        testUrl = mockWebServer.url("/").toString();
     }
 
     @BeforeEach
@@ -100,25 +100,20 @@ public class AppTest {
     }
 
     @Test
-    public void testCheckUrl() {
+    public void testCheckPath() throws SQLException {
+        var url = new Url(testUrl);
+        UrlRepository.save(url);
         JavalinTest.test(app, (server, client) -> {
-            String mockUrlName = mockWebServer.url("/").toString();
-            Url mockUrl = new Url(mockUrlName);
-            UrlRepository.save(mockUrl);
-
-            var response = client.post(NamedRoutes.urlCheck(String.valueOf(mockUrl.getId())));
-            assertThat(response.code()).isEqualTo(200);
-
-            List<UrlCheck> urlChecks = UrlCheckRepository.findUrlChecks(mockUrl.getId());
-            assertThat(urlChecks.size()).isEqualTo(1);
-
-            UrlCheck lastUrlCheck = UrlCheckRepository.findUrlChecks(mockUrl.getId()).getFirst();
-            assertThat(lastUrlCheck.getUrlId()).isEqualTo(1);
-            assertThat(lastUrlCheck.getStatusCode()).isEqualTo(200);
-            assertThat(Timestamp.valueOf(lastUrlCheck.getCreatedAt())).isToday();
-            assertThat(lastUrlCheck.getTitle()).contains("Test page");
-            assertThat(lastUrlCheck.getH1()).contains("Test page h1");
-            assertThat(lastUrlCheck.getDescription()).contains("Test description");
+            try (var response = client.post(NamedRoutes.urlCheck(1L))) {
+                assertThat(response.code()).isEqualTo(200);
+                assertThat(response.body().string()).contains("Test description", "Test page h1", "Test title");
+                var actualCheck = UrlCheckRepository.findUrlChecks(1L).getFirst();
+                assertThat(actualCheck.getStatusCode()).isEqualTo(200);
+                assertThat(actualCheck.getTitle()).isEqualTo("Test title");
+                assertThat(actualCheck.getH1()).isEqualTo("Test page h1");
+                assertThat(actualCheck.getDescription()).isEqualTo("Test description");
+                assertThat(Timestamp.valueOf(actualCheck.getCreatedAt())).isToday();
+            }
         });
     }
 }
