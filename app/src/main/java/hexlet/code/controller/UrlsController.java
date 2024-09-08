@@ -2,6 +2,8 @@ package hexlet.code.controller;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.SQLException;
 
 import kong.unirest.HttpResponse;
@@ -33,25 +35,35 @@ public class UrlsController {
         var page = new UrlsPage(urls, urlChecks,  flashType, flashMessage);
         ctx.render("urls/index.jte", model("page", page));
     }
-
     public static void create(Context ctx) throws SQLException {
-
+        var inputUrl = ctx.formParam("url");
+        URL parsedUrl;
         try {
-            var uri = URI.create(ctx.formParam("url"));
-            var url = uri.toURL();
-            var urlStr = url.getProtocol() + "://" + url.getHost();
-            if (!UrlRepository.existByName(urlStr)) {
-                UrlRepository.save(new Url(urlStr));
-                setSessionAttribute(ctx, "Success", "Страница успешно добавлена!");
-                ctx.redirect(NamedRoutes.urlsPath());
-            } else {
-                setSessionAttribute(ctx, "Error", "Страница уже существует");
-                ctx.redirect(NamedRoutes.rootPath());
-            }
-        } catch (MalformedURLException | IllegalArgumentException e) {
+            parsedUrl = new URI(inputUrl).toURL();
+        } catch (URISyntaxException | IllegalArgumentException | NullPointerException | MalformedURLException e) {
             setSessionAttribute(ctx, "Error", "Некорректный URL!");
             ctx.redirect(NamedRoutes.rootPath());
+            return;
         }
+        String normalizedUrl = String
+                .format(
+                        "%s://%s%s",
+                        parsedUrl.getProtocol(),
+                        parsedUrl.getHost(),
+                        parsedUrl.getPort() == -1 ? "" : ":" + parsedUrl.getPort()
+                )
+                .toLowerCase();
+
+        Url url = UrlRepository.findByName(normalizedUrl).orElse(null);
+
+        if (url != null) {
+            setSessionAttribute(ctx, "Error", "Страница уже существует");
+        } else {
+            Url newUrl = new Url(normalizedUrl);
+            UrlRepository.save(newUrl);
+            setSessionAttribute(ctx, "Success", "Страница успешно добавлена!");
+        }
+        ctx.redirect(NamedRoutes.urlsPath());
     }
 
     public static void show(Context ctx) {
