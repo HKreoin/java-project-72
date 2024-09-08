@@ -35,6 +35,7 @@ public class UrlsController {
         var page = new UrlsPage(urls, urlChecks,  flashType, flashMessage);
         ctx.render("urls/index.jte", model("page", page));
     }
+
     public static void create(Context ctx) throws SQLException {
         var inputUrl = ctx.formParam("url");
         URL parsedUrl;
